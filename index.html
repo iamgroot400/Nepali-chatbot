@@ -1,4 +1,51 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <title>नेपाली चैटबोट</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Noto Sans Devanagari", sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen">
+  <div class="w-full max-w-lg bg-white shadow-xl rounded-2xl p-6">
+    <h1 class="text-2xl font-bold text-center text-blue-700 mb-4">🤖 नेपाली चैटबोट</h1>
 
-flask
-requests
-gunicorn
+    <div id="chatbox" class="h-96 overflow-y-auto border p-3 rounded mb-4 bg-gray-100"></div>
+
+    <div class="flex gap-2">
+      <input id="userinput" type="text" class="flex-1 border rounded p-2" placeholder="यहाँ लेख्नुहोस्...">
+      <button id="sendbtn" class="bg-blue-600 text-white px-4 py-2 rounded">पठाउनुहोस्</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userinput");
+      const chatbox = document.getElementById("chatbox");
+      const message = input.value.trim();
+      if (!message) return;
+
+      chatbox.innerHTML += `<div class='text-right mb-2'><b>तपाईं:</b> ${message}</div>`;
+      input.value = "";
+
+      const resp = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+      });
+      const data = await resp.json();
+
+      chatbox.innerHTML += `<div class='text-left mb-2'><b>बोट:</b> ${data.reply}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    document.getElementById("sendbtn").addEventListener("click", sendMessage);
+    document.getElementById("userinput").addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
